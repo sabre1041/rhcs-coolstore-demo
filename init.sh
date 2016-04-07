@@ -84,7 +84,18 @@ fi
 echo
 echo "Creating a new project..."
 echo
-oc new-project rhcs-coolstore-demo 
+oc new-project rhcs-coolstore-demo
+
+echo
+echo "Creating PostgreSQL Database..."
+echo
+oc new-app --template=postgresql-ephemeral -p POSTGRESQL_USER=brms,POSTGRESQL_PASSWORD=brms,POSTGRESQL_DATABASE=brms
+
+if [ $? -ne 0 ]; then
+	echo
+	echo Error occurred during 'oc new-app postgresql' command!
+	exit
+fi
 
 echo
 echo "Setting up a new build..."
@@ -127,6 +138,17 @@ oc new-app rhcs-coolstore-demo
 if [ $? -ne 0 ]; then
 	echo
 	echo Error occurred during 'oc new-app' command!
+	exit
+fi
+
+echo
+echo "Setting PostgreSQL Environments for BRMS..."
+echo
+oc env dc rhcs-coolstore-demo -e POSTGRESQL_DB_USER=brms -e POSTGRESQL_DB_PASSWORD=brms -e POSTGRESQL_DB_NAME=brms
+
+if [ $? -ne 0 ]; then
+	echo
+	echo Error occurred during 'oc env' command!
 	exit
 fi
 

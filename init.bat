@@ -95,6 +95,18 @@ echo.
 call oc new-project rhcs-coolstore-demo 
 
 echo.
+echo Creating PostgreSQL Database...
+echo.
+call oc new-app --template=postgresql-ephemeral -p POSTGRESQL_USER=brms,POSTGRESQL_PASSWORD=brms,POSTGRESQL_DATABASE=brms
+
+if not "%ERRORLEVEL%" == "0" (
+  echo.
+	echo Error occurred during 'oc new-app postgresql' command!
+	echo.
+	GOTO :EOF
+)
+
+echo.
 echo Setting up a new build...
 echo.
 call oc new-build "jbossdemocentral/developer" --name=rhcs-coolstore-demo --binary=true
@@ -138,6 +150,18 @@ call oc new-app rhcs-coolstore-demo
 if not "%ERRORLEVEL%" == "0" (
   echo.
 	echo Error occurred during 'oc new-app' command!
+	echo.
+	GOTO :EOF
+)
+
+echo.
+echo Setting PostgreSQL Environments for BRMS...
+echo.
+call oc env dc rhcs-coolstore-demo -e POSTGRESQL_DB_USER=brms -e POSTGRESQL_DB_PASSWORD=brms -e POSTGRESQL_DB_NAME=brms
+
+if not "%ERRORLEVEL%" == "0" (
+  echo.
+	echo Error occurred during 'oc env' command!
 	echo.
 	GOTO :EOF
 )
